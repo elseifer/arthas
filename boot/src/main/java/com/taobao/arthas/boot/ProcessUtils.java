@@ -101,21 +101,28 @@ public class ProcessUtils {
 
         List<String> lines = ExecutingCommand.runNative(command);
 
+        AnsiLog.debug("jps result: " + lines);
+
         int currentPid = Integer.parseInt(PidUtils.currentPid());
         for (String line : lines) {
             String[] strings = line.trim().split("\\s+");
             if (strings.length < 1) {
                 continue;
             }
-            int pid = Integer.parseInt(strings[0]);
-            if (pid == currentPid) {
-                continue;
-            }
-            if (strings.length >= 2 && isJspProcess(strings[1])) { // skip jps
-                continue;
-            }
+            try {
+                int pid = Integer.parseInt(strings[0]);
+                if (pid == currentPid) {
+                    continue;
+                }
+                if (strings.length >= 2 && isJpsProcess(strings[1])) { // skip jps
+                    continue;
+                }
 
-            result.put(pid, line);
+                result.put(pid, line);
+            } catch (Throwable e) {
+                // https://github.com/alibaba/arthas/issues/970
+                // ignore
+            }
         }
 
         return result;
@@ -370,7 +377,7 @@ public class ProcessUtils {
         return jpsList.get(0);
     }
 
-    private static boolean isJspProcess(String mainClassName) {
+    private static boolean isJpsProcess(String mainClassName) {
         return "sun.tools.jps.Jps".equals(mainClassName) || "jdk.jcmd/sun.tools.jps.Jps".equals(mainClassName);
     }
 }

@@ -69,7 +69,7 @@ public class MemoryCompilerCommand extends AnnotatedCommand {
     }
 
     @Override
-    public void process(CommandProcess process) {
+    public void process(final CommandProcess process) {
         int exitCode = 0;
         RowAffect affect = new RowAffect();
 
